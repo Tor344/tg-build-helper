@@ -13,4 +13,6 @@ router = Router()
 
 @router.message(Command("start"))
 async def start(message: Message):
-    await message.answer("Hello World")
+    await message.answer("Бот создан для расчета площади и строительного материала"
+                         "Вы можете либо просмотреть, изменить данные в существующем объекте"
+                         "либо создать новый проект",reply_markup=start_keyboard)
