@@ -14,7 +14,7 @@ class ConstructionObject(Model):
     user = fields.ForeignKeyField("models.User", related_name="objects")  # Владелец объекта
     address = fields.CharField(max_length=200)  # Адрес объекта (например, "ул. Строителей, 15")
     total_thickness = fields.FloatField(null=True)  # Средняя толщина слоя штукатурки (в мм)
-
+    comments = fields.TextField(null=True,max_length=200)
     floors: fields.ReverseRelation["Floor"]  # Связь с этажами объекта
 
     class Meta:
@@ -39,6 +39,10 @@ class Room(Model):
     floor = fields.ForeignKeyField("models.Floor", related_name="rooms")  # Привязка к этажу
     door_area = fields.FloatField(default=0.0)  # Площадь дверных проемов (в м²)
 
+    additional_area = fields.FloatField(default=0.0)  # Доп. площадь (например, выступы)
+    plaster_type = fields.CharField(max_length=20, choices=["гипсовая", "цементная"])  # Тип штукатурки
+    linear_meters = fields.FloatField(default=0.0)  # Погонные метры (для углов, откосов)
+
     walls: fields.ReverseRelation["Wall"]  # Связь со стенами комнаты
     windows: fields.ReverseRelation["Window"]  # Связь с окнами комнаты
 
@@ -51,9 +55,6 @@ class Wall(Model):
     room = fields.ForeignKeyField("models.Room", related_name="walls")  # Привязка к комнате
     perimeter = fields.FloatField()  # Периметр стен (в метрах)
     height = fields.FloatField()  # Высота потолков (в метрах)
-    additional_area = fields.FloatField(default=0.0)  # Доп. площадь (например, выступы)
-    plaster_type = fields.CharField(max_length=20, choices=["гипсовая", "цементная"])  # Тип штукатурки
-    linear_meters = fields.FloatField(default=0.0)  # Погонные метры (для углов, откосов)
 
     class Meta:
         table = "walls"
@@ -80,7 +81,7 @@ class Window(Model):
 
 
 # Адрес объекта
-# Количество этажей включая подвал и мансарду
+# Количество этажей
 # Отметить галочками если меется подвал или мансарда НЕ ОБЯЗАТЕЛЬНО
 # Выберите этаж с которого хотите начать замер
 # Данные для этажа
@@ -134,7 +135,7 @@ class Window(Model):
 #
 # =>
 #
-# Модель пользователя
+#
 #     |
 #     модель обьекта
 #         |
@@ -160,3 +161,4 @@ class Window(Model):
 #                     Окна арочной формы
 #                     Штукатурка только с двух сторон
 #         средняя толщина слоя
+#         коментарии к проекту

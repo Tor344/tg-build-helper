@@ -5,7 +5,7 @@ import config.settings as set
 from app.start.handlers import router as start_router
 from app.user.handlers import router as user_router
 from app.admin.handlers import router as admin_router
-
+from app.create_object.handlers import router as create_object_router
 from config.logging_admin import loger
 from app.database.repository import db
 
@@ -17,7 +17,7 @@ dp = Dispatcher()
 dp.include_router(user_router)
 dp.include_router(admin_router)
 dp.include_router(start_router)
-
+dp.include_router(create_object_router)
 
 async def main():
     try:
