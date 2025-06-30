@@ -28,5 +28,6 @@ class InputData(StatesGroup):
     door_area = State()  # Площадь дверного проема
 
     # Завершение замера
-    finish_measurement = State()  # Состояние перед завершением
+    finish_floor = State()  # конец или добавление нового этажа
     plaster_thickness = State()  # Средняя толщина слоя штукатурки
+    coment = State()

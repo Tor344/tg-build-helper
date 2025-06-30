@@ -59,5 +59,5 @@ finish_walls = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[[KeyboardButto
 finish_window = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[[KeyboardButton(text="Добавить окно")],
                                                                    [KeyboardButton(text="Продолжить")]])
 
-finish_floor = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[[KeyboardButton(text="Закончить заполнение и перейти к результатам")],
+finish_floor = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[[KeyboardButton(text="Добавить среднюю толщину штукатурки, коментарии к объекту и закончить")],
                                                                   [KeyboardButton(text="Заполнить другой этаж")]])

@@ -131,6 +131,9 @@ async def create_object(message: Message,state: FSMContext):
 #Получаем тип штукатурки
 @router.message(InputData.plaster_type)
 async def create_object(message: Message,state: FSMContext):
+    if message.text not in ['Цементная','Гипсовая']:
+        await message.answer("Выберите один из предложенных вариантов")
+        return
     await state.update_data(plaster_type=message.text)
     await message.answer("Введите погонные метры",reply_markup=remove_keyboard)
     await state.set_state(InputData.linear_meters)
@@ -221,8 +224,7 @@ async def create_object(call:CallbackQuery,state: FSMContext):
     await state.set_state(InputData.finish_window)
 
 
-
-#получаем площадь дверного проема или добавляем еще одно окно
+#переходим к получению площади дверного проема или добавляем еще одно окно
 @router.message(InputData.finish_window)
 async def create_object(message: Message,state: FSMContext):
     if message.text == "Продолжить":
@@ -253,27 +255,21 @@ async def create_object(message: Message,state: FSMContext):
 
     finally:
         if door_area >= 0:
-            await state.set_state(InputData.finish_measurement)
+            await state.set_state(InputData.finish_floor)
 
 
-@router.message(InputData.finish_measurement)
+
+
+
+#Заполняем оставшиеся данные и заканчиваем или запоняем новый этаж
+@router.message(InputData.finish_floor)
 async def create_object(message: Message,state: FSMContext):
-    data = await state.get_data()
-    if message.text == "Закончить заполнение и перейти к результатам":
-        data = await state.get_data()
+    if message.text == "Добавить среднюю толщину штукатурки, коментарии к объекту и закончить":
+        await message.answer("Введите среднюю толщину штукатурки:", reply_markup=remove_keyboard)
+        await state.set_state(InputData.plaster_thickness)
 
-        formatted_data = "\n".join(
-            f"<b>{key}:</b> {value}"
-            for key, value in data.items()
-        )
-        await message.answer(
-            f"Вы закончили заполнять данные:\n{formatted_data}",
-            reply_markup=remove_keyboard,
-            parse_mode="HTML"
-        )
-        await state.clear()
     elif message.text == "Заполнить другой этаж":
-
+        data = await state.get_data()
         await message.answer("Выберите этаж с которого хотите начать замер",
                              reply_markup=choosing_floor(int(data["count_floor"])))
         await state.set_state(InputData.start_floor)
@@ -282,7 +278,44 @@ async def create_object(message: Message,state: FSMContext):
         await message.answer("Выберите один из предложенных вариантов")
 
 
+#Получем среднюю толщину слоя штукатурки
+@router.message(InputData.plaster_thickness)
+async def create_object(message: Message,state: FSMContext):
+    try:
+        plaster_thickness = float(message.text)
+        if plaster_thickness < 0:
+            await message.answer("Число должно быть больше или ровно 0")
+            return
+        await state.update_data(plaster_thickness=plaster_thickness)
+        await message.answer("Добавить коментарии:",reply_markup=remove_keyboard)
 
+    except ValueError:
+        await message.answer("Сообщение должно быть числом")
+        return
+
+    finally:
+        if plaster_thickness >= 0:
+            await state.set_state(InputData.coment)
+
+
+
+
+
+@router.message(InputData.coment)
+async def create_object(message: Message,state: FSMContext):
+    await state.update_data(comment=message.text)
+    data = await state.get_data()
+
+    formatted_data = "\n".join(
+        f"<b>{key}:</b> {value}"
+        for key, value in data.items()
+    )
+    await message.answer(
+        f"Вы закончили заполнять данные:\n{formatted_data}",
+        reply_markup=remove_keyboard,
+        parse_mode="HTML"
+    )
+    await state.clear()
 
 
 
