@@ -41,9 +41,11 @@ remove_keyboard = ReplyKeyboardRemove()
 start_keyboard = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[[KeyboardButton(text="Существующие объекты")],
                                                                     [KeyboardButton(text="Создать объект")]])
 
-def choosing_floor(count: int) -> ReplyKeyboardMarkup:
+def choosing_floor(count: list) -> ReplyKeyboardMarkup:
     """Требует int количество этажей"""
-    keyboard_buttons = [[KeyboardButton(text=str(i))] for i in range(count ,0,-1)]
+    keyboard_buttons = []
+    for item in reversed(count):
+        keyboard_buttons.append([KeyboardButton(text=str(item))])
     return ReplyKeyboardMarkup(
         keyboard=keyboard_buttons,
         resize_keyboard=True,
