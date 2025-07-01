@@ -33,6 +33,7 @@ async def create_object(message: Message,state: FSMContext):
     if not(message.text.isdigit()):
         await message.answer("Сообщение должно быть числом")
         return
+    await state.update_data(count_walls=0)
     follrs = [int(x) for x in range(1,int(message.text)+1)]
     await state.update_data(count_floor = follrs)
     await message.answer("Выберите этаж с которого хотите начать замер",reply_markup=choosing_floor(follrs))
@@ -46,15 +47,17 @@ async def create_object(message: Message,state: FSMContext):
     if not(message.text.isdigit()):
         await message.answer("Сообщение должно быть числом")
         return
-
     await state.update_data(number_floor=int(message.text))
     data = await state.get_data()
     count_floor = list(data["count_floor"])
     count_floor.remove(int(message.text))
 
     await state.update_data(count_floor=count_floor)
-    await message.answer("Начинаем вносить данные для комнаты\n"
-                        "Введите периметр стен",reply_markup=remove_keyboard)
+    await state.update_data(count_walls=int(data["count_walls"]) + 1)
+
+    await message.answer(f"Начинаем вносить данные для комнаты № {int(message.text)}\n"
+                         f"Стены с одной высотой № {data["count_walls"] +1}\n"
+                        "Введите периметр стен:",reply_markup=remove_keyboard)
 
     await state.set_state(InputData.walls_perimeter)
 
@@ -68,8 +71,7 @@ async def create_object(message: Message,state: FSMContext):
             await message.answer("Число должно быть больше или ровно 0")
             return
         await state.update_data(walls_perimeter=perimeter)
-        await message.answer("Введите высоту потолков")
-
+        await message.answer("Введите высоту стен:")
     except ValueError:
         await message.answer("Сообщение должно быть числом")
         return
@@ -106,7 +108,9 @@ async def create_object(message: Message,state: FSMContext):
         await message.answer("Введите доп. площадь стен",reply_markup=remove_keyboard)
         await state.set_state(InputData.extra_wall_area)
     elif message.text == "Добавить стены с другой высотой":
-        await message.answer("Добавление еще одной стены\n"
+        data = await state.get_data()
+        await state.update_data(count_walls=int(data["count_walls"]) + 1)
+        await message.answer(f"Добавление стен с другой высотой №{data["count_walls"] +1}\n"
                              "Введите периметр стен", reply_markup=remove_keyboard)
         await state.set_state(InputData.walls_perimeter)
 
@@ -139,6 +143,7 @@ async def create_object(message: Message,state: FSMContext):
     if message.text not in ['Цементная','Гипсовая']:
         await message.answer("Выберите один из предложенных вариантов")
         return
+    await state.update_data(count_window=0)
     await state.update_data(plaster_type=message.text)
     await message.answer("Введите погонные метры",reply_markup=remove_keyboard)
     await state.set_state(InputData.linear_meters)
@@ -153,7 +158,10 @@ async def create_object(message: Message,state: FSMContext):
             await message.answer("Число должно быть больше или ровно 0")
             return
         await state.update_data(linear_meters=linear_meters)
-        await message.answer("Введите ширину окна")
+        data = await state.get_data()
+        await state.update_data(count_window=data["count_window"] + 1)
+        await message.answer(f"Начинаем заполнять окна №{data["count_window"]+1}\n"
+            "Введите ширину окна")
 
     except ValueError:
         await message.answer("Сообщение должно быть числом")
@@ -236,7 +244,9 @@ async def create_object(message: Message,state: FSMContext):
         await message.answer("Введите площадь дверного проема",reply_markup=remove_keyboard)
         await state.set_state(InputData.door_area)
     elif message.text == "Добавить окно":
-        await message.answer("Добавление еще одного окна\n"
+        data = await state.get_data()
+        await state.update_data(count_window=data["count_window"] + 1)
+        await message.answer(f"Добавление еще одного окна №{data["count_window"] + 1}\n"
                              "Введите высоту окна", reply_markup=remove_keyboard)
         await state.set_state(InputData.window_width)
     else:
@@ -260,7 +270,7 @@ async def create_object(message: Message,state: FSMContext):
             return
 
         count_floor = list(data["count_floor"])
-
+        await state.update_data(count_window=0, count_walls=0 )
         await message.answer("Выберите этаж с которого хотите начать замер",
                              reply_markup=choosing_floor(count_floor))
 
