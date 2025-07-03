@@ -387,15 +387,13 @@ async def create_object(message: Message,state: FSMContext):
 #получаем коментарии и выводим резульмат
 @router.message(InputData.coment)
 async def create_object(message: Message,state: FSMContext):
-    await state.update_data(comment=message.text)
+    await state.update_data(comments=message.text)
     data = await state.get_data()
-
-    formatted_data = "\n".join(
-        f"<b>{key}:</b> {value}"
-        for key, value in data.items()
-    )
+    await db.append_construction_object(data["construction_object"],plaster_thickness=data['plaster_thickness'],
+                                        comments=message.text)
+    text = await db.generate_construction_object_report(data["construction_object"])
     await message.answer(
-        f"Вы закончили заполнять данные",
+        text,
         reply_markup=remove_keyboard,
         parse_mode="HTML"
     )

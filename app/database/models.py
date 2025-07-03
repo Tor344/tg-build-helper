@@ -13,7 +13,7 @@ class ConstructionObject(Model):
     id = fields.IntField(pk=True)
     user = fields.ForeignKeyField("models.User", related_name="objects")  # Владелец объекта
     address = fields.CharField(max_length=200,null=True)  # Адрес объекта (например, "ул. Строителей, 15")
-    total_thickness = fields.FloatField(null=True)  # Средняя толщина слоя штукатурки (в мм)
+    plaster_thickness = fields.FloatField(null=True)  # Средняя толщина слоя штукатурки (в мм)
     comments = fields.TextField(null=True,max_length=200)
     floors: fields.ReverseRelation["Floor"]  # Связь с этажами объекта
 

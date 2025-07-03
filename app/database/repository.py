@@ -34,6 +34,16 @@ class Database:
         object = await ConstructionObject.create(user=user, address=address)
         return object
 
+    async def append_construction_object(self,object,plaster_thickness:float,comments:str):
+        object.plaster_thickness = plaster_thickness
+        object.comments = comments
+        await object.save()
+        return object
+
+
+
+
+
     async def add_floor(self, object: int) -> Floor:
         """создаем этаж id_object: объект или id его"""
         floor = await Floor.create(object=object)
@@ -79,7 +89,71 @@ class Database:
         """Удоляем пользователя True если удалили False если нет"""
         return bool(await User.filter(user_id=user_id).delete())
 
+    async def generate_construction_object_report(self, obj: ConstructionObject) -> str:
+        # Загружаем связанные данные
+        await obj.fetch_related(
+            "floors__rooms__walls",
+            "floors__rooms__windows",
+            "user"
+        )
 
+        report_lines = []
+        report_lines.append(f"ОТЧЁТ ПО ОБЪЕКТУ: {obj.address or 'Без названия'}")
+        report_lines.append(f"ID объекта: {obj.id}")
+        report_lines.append(f"Толщина штукатурки: {obj.plaster_thickness} мм")
+        report_lines.append(f"Комментарии: {obj.comments}")
+        report_lines.append("=" * 50)
+
+        total_object_area = 0.0
+
+        # Сортируем этажи по ID
+        floors = await obj.floors.all().order_by('id')
+        for floor_idx, floor in enumerate(floors, 1):
+            report_lines.append(f"\nЭТАЖ #{floor_idx} (ID: {floor.id})")
+            total_floor_area = 0.0
+
+            # Сортируем комнаты по ID
+            rooms = await floor.rooms.all().order_by('id')
+            for room in rooms:
+                report_lines.append(f"\n  КОМНАТА ID: {room.id}")
+                report_lines.append(f"  - Тип штукатурки: {room.plaster_type}")
+                report_lines.append(f"  - Доп. площадь стен: {room.extra_wall_area} м²")
+                report_lines.append(f"  - Погонные метры: {room.linear_meters} м")
+                report_lines.append(f"  - Площадь дверей: {room.door_area} м²")
+
+                # Рассчитываем площадь комнаты
+                room_wall_area = 0.0
+                window_area = 0.0
+
+                # Обработка стен
+                walls = await room.walls.all()
+                for wall in walls:
+                    wall_area = wall.perimeter * wall.height
+                    room_wall_area += wall_area
+                    report_lines.append(
+                        f"  - Стена ID:{wall.id}: {wall.perimeter}м x {wall.height}м = {wall_area:.2f}м²")
+
+                # Обработка окон
+                windows = await room.windows.all()
+                for window in windows:
+                    win_area = window.width * window.height
+                    window_area += win_area
+                    report_lines.append(
+                        f"  - Окно ID:{window.id}: {window.width}м x {window.height}м = {win_area:.2f}м²"
+                        f" [Штукатурка: {'Да' if window.needs_plaster else 'Нет'}]"
+                    )
+
+                # Финанльная площадь комнаты с учётом вычетов
+                room_total = room_wall_area + room.extra_wall_area - window_area - room.door_area
+                report_lines.append(f"  ИТОГО ДЛЯ КОМНАТЫ: {room_total:.2f} м²")
+                total_floor_area += max(room_total, 0)  # Защита от отрицательных значений
+
+            report_lines.append(f"\nОБЩАЯ ПЛОЩАДЬ ЭТАЖА #{floor_idx}: {total_floor_area:.2f} м²")
+            total_object_area += total_floor_area
+
+        report_lines.append("=" * 50)
+        report_lines.append(f"ОБЩАЯ ПЛОЩАДЬ ОБЪЕКТА: {total_object_area:.2f} м²")
+        return "\n".join(report_lines)
 db = Database()
 
 
