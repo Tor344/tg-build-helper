@@ -40,9 +40,11 @@ class Database:
         await object.save()
         return object
 
+    async def get_construction_object(self,user_id:int) -> list:
+        return await ConstructionObject.filter(user_id=user_id).all()
 
-
-
+    async def delete_construction_object(self,object:ConstructionObject):
+        await object.delete()
 
     async def add_floor(self, object: int) -> Floor:
         """создаем этаж id_object: объект или id его"""
@@ -154,6 +156,8 @@ class Database:
         report_lines.append("=" * 50)
         report_lines.append(f"ОБЩАЯ ПЛОЩАДЬ ОБЪЕКТА: {total_object_area:.2f} м²")
         return "\n".join(report_lines)
+
+
 db = Database()
 
 
