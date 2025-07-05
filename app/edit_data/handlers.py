@@ -29,13 +29,13 @@ async def edit_data(message: Message,state:FSMContext):
     await state.set_state(StateFmsEditData.edit_construction_object)
 
 #Выбрано редактирование данных объекта. Предлогаем выбрать этаж
-@router.message(F.text == "Редактировать данные", StateFmsEditData.edit_construction_object)
-async def edit_data(message: Message, state: FSMContext):
-    data = await state.get_data()
-    #получаем все этажи
-    floor_list = await db.get_floors(data.get("construction_object"))
-
-    text = ""
+# @router.message(F.text == "Редактировать данные", StateFmsEditData.edit_construction_object)
+# async def edit_data(message: Message, state: FSMContext):
+#     data = await state.get_data()
+#     #получаем все этажи
+#     floor_list = await db.get_floors(data.get("construction_object"))
+#
+#     text = ""
 
 
 
@@ -45,8 +45,10 @@ async def edit_data(message: Message,state:FSMContext):
     data = await state.get_data()
     construction_object = list(data.get("construction_object_list"))[int(message.text) - 1]
     await state.update_data(construction_object=construction_object)
-    text = await db.generate_construction_object_report(construction_object)
-    await message.answer(text, reply_markup=edit_construction_object)
+
+    list_data_report = await construction_object.generate_report()
+    await message.answer(list_data_report[0])
+    await message.answer(list_data_report[1], reply_markup=edit_construction_object)
 
 
 

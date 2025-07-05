@@ -391,12 +391,13 @@ async def create_object(message: Message,state: FSMContext):
     data = await state.get_data()
     await db.append_construction_object(data["construction_object"],plaster_thickness=data['plaster_thickness'],
                                         comments=message.text)
-    text = await db.generate_construction_object_report(data["construction_object"])
+
+    list_data_report = await data["construction_object"].generate_report()
     await message.answer(
-        text,
+        list_data_report[0],
         reply_markup=remove_keyboard,
-        parse_mode="HTML"
     )
+    await message.answer(list_data_report[1],reply_markup=remove_keyboard)
     await state.clear()
 
 
