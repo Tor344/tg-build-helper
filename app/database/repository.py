@@ -51,6 +51,9 @@ class Database:
         floor = await Floor.create(object=object)
         return floor
 
+    async def get_floor(self, object:int) -> list:
+        return await Floor.filter(object=object).all()
+
     async def add_room(self, floor) -> Room:
         room = await Room.create(floor=floor)
         return room
@@ -98,6 +101,10 @@ class Database:
             "floors__rooms__windows",
             "user"
         )
+
+        text = ""
+
+
 
         report_lines = []
         report_lines.append(f"ОТЧЁТ ПО ОБЪЕКТУ: {obj.address or 'Без названия'}")
