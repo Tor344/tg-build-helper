@@ -40,11 +40,31 @@ def choose_construction_object(count:int):
         resize_keyboard=True,
     )
 
+def choose_floor(count:int):
+    keyboard_buttons = []
+    for _ in range(1,count + 1):
+        keyboard_buttons.append([KeyboardButton(text=str(_))])
+    keyboard_buttons.append([KeyboardButton(text="Вернуться на отчет")])
+    return ReplyKeyboardMarkup(
+        keyboard=keyboard_buttons,
+        resize_keyboard=True,
+    )
+
+def choose_room(count:int):
+    keyboard_buttons = []
+    for _ in range(1,count + 1):
+        keyboard_buttons.append([KeyboardButton(text=str(_))])
+    keyboard_buttons.append([KeyboardButton(text="Вернуться на выбор этажа")])
+    return ReplyKeyboardMarkup(
+        keyboard=keyboard_buttons,
+        resize_keyboard=True,
+    )
+
 
 
 edit_construction_object = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[[KeyboardButton(text="Редактировать данные"),
                                                                               KeyboardButton(text="Удалить объект")],
-                                                                            [KeyboardButton(text="Вернуться назад")]])
+                                                                            [KeyboardButton(text="Вернуться на выбор объекта")]])
 
-def edit_room_object():
-    pass
+
+beck_at_room = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[[KeyboardButton(text="Вернуться на выбор комнаты")]])

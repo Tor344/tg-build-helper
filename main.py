@@ -19,8 +19,8 @@ dp = Dispatcher()
 dp.include_router(user_router)
 dp.include_router(admin_router)
 dp.include_router(start_router)
-dp.include_router(create_object_router)
 dp.include_router(edit_data_delite_router)
+dp.include_router(create_object_router)
 dp.include_router(edit_data_router)
 
 

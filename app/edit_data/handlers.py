@@ -54,7 +54,7 @@ async def edit_data(message: Message, state: FSMContext):
     text = "Выберите один из этажей\n"
     for intdex_floor, floor in enumerate(floor_list,start=1):
         text += f"- Этаж №{intdex_floor}\n"
-    await message.answer(text, reply_markup=choose_construction_object(len(floor_list)))
+    await message.answer(text, reply_markup=choose_floor(len(floor_list)))
     await state.set_state(StateFmsEditData.choose_room_object)
 
 
@@ -63,16 +63,15 @@ async def edit_data(message: Message, state: FSMContext):
 async def edit_data(message: Message, state: FSMContext):
     try:
         numeral_floor = int(message.text)
-
         data = await state.get_data()
         floor = data.get("floor_list")[numeral_floor - 1]
         room_list = await floor.rooms.all().order_by("id")
-        await state.update_data(room_list=room_list)
+        await state.update_data(room_list=room_list,floor=floor)
 
         text = "Выберите нужную комнату\n"
         for intdex_room, room in enumerate(room_list, start=1):
             text += f"- Комната №{intdex_room}\n"
-        await message.answer(text, reply_markup=choose_construction_object(len(room_list)))
+        await message.answer(text, reply_markup=choose_room(len(room_list)))
         await state.set_state(StateFmsEditData.edit_room_object)
     except Exception as e:
         await message.answer("Сообщение должно быть числом")
@@ -98,7 +97,7 @@ async def edit_data(message: Message, state: FSMContext):
 
         for index_window, windows in enumerate(data_list_windows,start=0):
             await message.answer(windows,reply_markup=window_edit_data(index_window))
-        await message.answer("Что вы хотите изменить?",reply_markup=remove_keyboard)
+        await message.answer("Что вы хотите изменить?",reply_markup=beck_at_room)
 
         await state.set_state(StateFmsEditData.choose_action_data_room)
     except Exception as e:
@@ -148,28 +147,28 @@ async def edit_data(call: CallbackQuery, state: FSMContext):
         index = int(call.data.split("_")[-1])
         windows[index].needs_plaster = not(windows[index].needs_plaster)
         await windows[index].save()
-        await call.message.answer(f"Теперь штукатурка откосов {"не" if not(windows[index].needs_plaster) else ""} нужна")
+        await call.message.answer(f"Теперь штукатурка откосов {"не" if not(windows[index].needs_plaster) else ""} нужна",reply_markup=beck_at_room)
 
     elif call.data.startswith("edit_window_plaster_four_sides_"):
         index = int(call.data.split("_")[-1])
         windows[index].plaster_all_sides = not (windows[index].plaster_all_sides)
         await windows[index].save()
         await call.message.answer(
-            f"Теперь штукатурка откосов с 4 сторон {"не" if not (windows[index].plaster_all_sides) else ""} нужна")
+            f"Теперь штукатурка откосов с 4 сторон {"не" if not (windows[index].plaster_all_sides) else ""} нужна",reply_markup=beck_at_room)
 
     elif call.data.startswith("edit_window_arch_shape_"):
         index = int(call.data.split("_")[-1])
         windows[index].is_arched = not (windows[index].is_arched)
         await windows[index].save()
         await call.message.answer(
-            f"Теперь окно {"не" if not (windows[index].is_arched) else ""} арочное")
+            f"Теперь окно {"не" if not (windows[index].is_arched) else ""} арочное",reply_markup=beck_at_room)
 
     elif call.data.startswith("edit_window_plaster_two_sides_"):
         index = int(call.data.split("_")[-1])
         windows[index].plaster_two_sides = not (windows[index].plaster_two_sides)
         await windows[index].save()
         await call.message.answer(
-            f"Теперь штукатурка откосов с 2 сторон {"не" if not (windows[index].plaster_two_sides) else ""} нужна")
+            f"Теперь штукатурка откосов с 2 сторон {"не" if not (windows[index].plaster_two_sides) else ""} нужна",reply_markup=beck_at_room)
 
 
 
@@ -179,7 +178,7 @@ async def edit_data(message: Message, state:FSMContext):
     room = data.get("room")
     room.extra_wall_area = message.text
     await room.save()
-    await message.answer("Данные изменены",reply_markup=remove_keyboard)
+    await message.answer("Данные изменены",reply_markup=beck_at_room)
     await state.set_state(StateFmsEditData.choose_action_data_room)
 
 
@@ -189,7 +188,7 @@ async def edit_data(message: Message, state:FSMContext):
     room = data.get("room")
     room.linear_meters = message.text
     await room.save()
-    await message.answer("Данные изменены",reply_markup=remove_keyboard)
+    await message.answer("Данные изменены",reply_markup=beck_at_room)
     await state.set_state(StateFmsEditData.choose_action_data_room)
 
 
@@ -201,7 +200,7 @@ async def edit_data(message: Message, state:FSMContext):
     walls = await room.walls.all().order_by("id")
     walls[index].perimeter = message.text
     await walls[index].save()
-    await message.answer("Данные изменены",reply_markup=remove_keyboard)
+    await message.answer("Данные изменены",reply_markup=beck_at_room)
     await state.set_state(StateFmsEditData.choose_action_data_room)
 
 
@@ -213,7 +212,7 @@ async def edit_data(message: Message, state:FSMContext):
     walls = await room.walls.all().order_by("id")
     walls[index].height = message.text
     await walls[index].save()
-    await message.answer("Данные изменены",reply_markup=remove_keyboard)
+    await message.answer("Данные изменены",reply_markup=beck_at_room)
     await state.set_state(StateFmsEditData.choose_action_data_room)
 
 
@@ -225,7 +224,7 @@ async def edit_data(message: Message, state:FSMContext):
     windows = await room.windows.all().order_by("id")
     windows[index].height = message.text
     await windows[index].save()
-    await message.answer("Данные изменены",reply_markup=remove_keyboard)
+    await message.answer("Данные изменены",reply_markup=beck_at_room)
     await state.set_state(StateFmsEditData.choose_action_data_room)
 
 
@@ -237,7 +236,7 @@ async def edit_data(message: Message, state:FSMContext):
     windows = await room.windows.all().order_by("id")
     windows[index].width = message.text
     await windows[index].save()
-    await message.answer("Данные изменены",reply_markup=remove_keyboard)
+    await message.answer("Данные изменены",reply_markup=beck_at_room)
     await state.set_state(StateFmsEditData.choose_action_data_room)
 
 
