@@ -12,7 +12,7 @@ from app.edit_data.state_fms import StateFmsEditData
 router = Router()
 
 #Выводим объекты
-@router.message(F.text == "Удалить объект",StateFmsEditData.edit_construction_object)
+@router.message(F.text == "Удалить объект",StateFmsEditData.choose_action)
 async def edit_data_delite(message: Message,state:FSMContext):
     data = await state.get_data()
     construction_object = data.get("construction_object")
@@ -30,7 +30,7 @@ async def edit_data_delite(message: Message,state:FSMContext):
         count += 1
         text += f"- №{count}: {construction_object.address}\n"
     await message.answer(text, reply_markup=choose_construction_object(count))
-    await state.set_state(StateFmsEditData.edit_construction_object)
+    await state.set_state(StateFmsEditData.choose_construction_object)
 
 
 

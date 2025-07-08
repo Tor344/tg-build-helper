@@ -51,7 +51,7 @@ class Database:
         floor = await Floor.create(object=object)
         return floor
 
-    async def get_floor(self, object:int) -> list:
+    async def get_floors(self, object:int) -> list:
         return await Floor.filter(object=object).all()
 
     async def add_room(self, floor) -> Room:
@@ -94,10 +94,7 @@ class Database:
         """Удоляем пользователя True если удалили False если нет"""
         return bool(await User.filter(user_id=user_id).delete())
 
-
-
 db = Database()
-
 
 if __name__ == "__main__":
     pass

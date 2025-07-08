@@ -167,6 +167,45 @@ class Room(Model):
 
     door_area = fields.FloatField(default=0.0)
 
+    async def get_data(self):
+        data_list_room = []
+        data_list_walls = []
+        data_list_windows = []
+
+        str_walls = []
+        str_windows = []
+
+        data_list_room.append(f"Комната")
+        data_list_room.append(f"     Доп. площадь: {self.extra_wall_area} м")
+        data_list_room.append(f"     Тип штукатурки: {self.extra_wall_area}")
+        data_list_room.append(f"     Погонные метры: {self.linear_meters} м")
+        str_room = "\n".join(data_list_room)
+
+        walls = await self.walls.all().order_by("id")
+        windows = await self.windows.all().order_by("id")
+
+
+        for index_wall, wall in enumerate(walls, start=1):
+
+            str_walls.append(f"Стены №{index_wall}")
+            str_walls.append(f"     Периметр стен: {wall.perimeter} м")
+            str_walls.append(f"     Высота стен: {wall.height} м")
+            data_list_walls.append("\n".join(str_walls))
+            str_walls = []
+
+        for index_window, window in enumerate(windows, start=1):
+            str_windows.append(f"Окна №{index_window}")
+            str_windows.append(f"     Ширина окна: {window.width} м")
+            str_windows.append(f"     высота окна: {window.height} м")
+            str_windows.append(f"     Нужна ли штукатурка откосов: {"Да" if window.needs_plaster else "Нет"}")
+            str_windows.append(f"     Оштукатурить все 4 стороны: {"Да" if window.plaster_all_sides else "Нет"}")
+            str_windows.append(f"     Арочное окно: {"Да" if window.is_arched else "Нет"}")
+            str_windows.append(f"     Только 2 стороны: {"Да" if window.plaster_two_sides else "Нет"}")
+            data_list_windows.append("\n".join(str_windows))
+            str_windows = []
+
+        return str_room, data_list_walls,data_list_windows
+
     class Meta:
         table = "rooms"
 
