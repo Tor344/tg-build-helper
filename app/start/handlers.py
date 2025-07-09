@@ -14,6 +14,6 @@ router = Router()
 @router.message(Command("start"))
 async def start(message: Message):
     await db.add_user(user_id=int(message.from_user.id))
-    await message.answer("Бот создан для расчета площади и строительного материала"
-                         "Вы можете либо просмотреть, изменить данные в существующем объекте"
+    await message.answer("Бот создан для расчета площади и строительного материала\n"
+                         "Вы можете либо просмотреть, изменить, удалить данные в существующем объекте\n"
                          "либо создать новый проект",reply_markup=start_keyboard)

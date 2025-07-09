@@ -393,10 +393,7 @@ async def create_object(message: Message,state: FSMContext):
                                         comments=message.text)
 
     list_data_report = await data["construction_object"].generate_report()
-    await message.answer(
-        list_data_report[0],
-        reply_markup=remove_keyboard,
-    )
+    await message.answer(list_data_report[0])
     await message.answer(list_data_report[1],reply_markup=remove_keyboard)
     await state.clear()
 

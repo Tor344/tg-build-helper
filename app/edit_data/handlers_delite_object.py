@@ -35,7 +35,7 @@ async def edit_data_delite(message: Message,state:FSMContext):
 
 
 
-@router.message(F.text == "Вернуться на главную",StateFmsEditData.choose_action)
+@router.message(F.text == "Вернуться на главную")
 async def back(message: Message,state:FSMContext):
     await message.answer("Бот создан для расчета площади и строительного материала"
                          "Вы можете либо просмотреть, изменить данные в существующем объекте"

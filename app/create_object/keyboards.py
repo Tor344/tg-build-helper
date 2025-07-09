@@ -64,9 +64,7 @@ finish_window = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[[KeyboardButt
 finish_room = ReplyKeyboardMarkup(resize_keyboard=True,keyboard=[[KeyboardButton(text="Добавить комнату")],
                                                                   [KeyboardButton(text="Перейти на другой этаж если таковые имеются")]])
 
-
-
-
+back_main = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[[KeyboardButton(text="Вернуться на главную")]])
 
 
 
